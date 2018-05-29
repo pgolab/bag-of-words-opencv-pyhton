@@ -12,11 +12,9 @@ def generate_training_and_test_data(categories):
     _prepare_path(TEST_DATA_PATH)
 
     for category, images_list in categories_lists.items():
-        # ToDo: split images into test and training set
-        # http://scikit-learn.org/stable/modules/generated/sklearn.model_selection.train_test_split.html
-
-        _copy_files_to([], TRAIN_DATA_PATH / category)
-        _copy_files_to([], TEST_DATA_PATH / category)
+        train_images, test_images = train_test_split(images_list, test_size=TEST_SIZE, train_size=TRAIN_SIZE)
+        _copy_files_to(train_images, TRAIN_DATA_PATH / category)
+        _copy_files_to(test_images, TEST_DATA_PATH / category)
 
 
 def _get_categories_lists(categories):
