@@ -11,13 +11,12 @@ from config import USE_PRECOMPUTED_CODEBOOK, CODEBOOK_PATH, \
 
 def get_codebook(images_sets, sift, load=USE_PRECOMPUTED_CODEBOOK):
     if load:
-        # ToDo: load saved codebook
-        # https://docs.python.org/3.6/library/pickle.html
-        codebook = None
+        with open(CODEBOOK_PATH, 'rb') as file:
+            codebook = pickle.load(file)
     else:
         codebook = _compute_codebook(images_sets, sift)
-        # ToDo: save codebook
-        # https://docs.python.org/3.6/library/pickle.html
+        with open(CODEBOOK_PATH, 'wb') as file:
+            pickle.dump(codebook, file, pickle.HIGHEST_PROTOCOL)
 
     return codebook
 
@@ -32,17 +31,15 @@ def _compute_codebook(images_sets, sift):
     for set_name, set_path in images_sets.items():
         print(f'    > {set_name}')
         category_descriptors = _get_set_descriptors(set_path, sift)
-        # ToDo: combine descriptors for k means algorithm
-        # https://docs.scipy.org/doc/numpy/reference/generated/numpy.vstack.html
+        descriptors = np.vstack((descriptors, category_descriptors))
 
     print('    DONE')
     print('')
 
     print('  > BUILDING CODEBOOK:')
 
-    # ToDo: create codebook using k means algorithm
-    # http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
-    codebook = None
+    codebook = KMeans(n_clusters=CLUSTERS_COUNT, n_init=KMEANS_ITERATIONS)
+    codebook.fit(descriptors)
 
     print('    DONE')
     print('')
