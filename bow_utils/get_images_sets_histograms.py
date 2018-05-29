@@ -10,13 +10,14 @@ from config import CLUSTERS_COUNT, USE_PRECOMPUTED_HISTOGRAMS, HISTOGRAMS_PATH
 
 def get_images_sets_histograms(images_sets, sift, codebook, load=USE_PRECOMPUTED_HISTOGRAMS, save=True):
     if load:
-        # ToDo: load saved sets histograms
-        # https://docs.python.org/3.6/library/pickle.html
-        sets_histograms = None
+        with open(HISTOGRAMS_PATH, 'rb') as file:
+            sets_histograms = pickle.load(file)
     else:
         sets_histograms = _compute_images_sets_histograms(images_sets, sift, codebook)
-        # ToDo: save sets histograms
-        # https://docs.python.org/3.6/library/pickle.html
+
+        if save:
+            with open(HISTOGRAMS_PATH, 'wb') as file:
+                pickle.dump(sets_histograms, file, pickle.HIGHEST_PROTOCOL)
 
     _plot_mean_histograms(sets_histograms)
 
@@ -50,9 +51,9 @@ def _get_images_set_histograms(set_path, sift, codebook):
         descriptors = get_image_descriptors(image_path, sift)
 
         if descriptors is not None:
-            # ToDo: build histogram using codebook
-            # http://scikit-learn.org/stable/modules/generated/sklearn.cluster.KMeans.html
-            pass
+            codes = codebook.predict(descriptors)
+            histogram, _ = np.histogram(codes, CLUSTERS_COUNT)
+            histograms = np.vstack((histograms, histogram))
 
     print('\r', end='')
     print('    DONE')
@@ -65,10 +66,17 @@ def _plot_mean_histograms(sets_histograms):
     max_histograms_value = 0
 
     for category, histograms in sets_histograms.items():
-        # ToDo: calculate mean histogram
-        # https://docs.scipy.org/doc/numpy/reference/generated/numpy.mean.html
-        pass
+        categories_mean_histograms[category] = np.mean(histograms, axis=0)
+        max_histograms_value = max(max_histograms_value, np.max(categories_mean_histograms[category]))
 
-    # ToDo: plot histogram
-    # https://matplotlib.org/users/pyplot_tutorial.html
+    plt.figure(1)
+
+    for index, (category, histogram) in enumerate(categories_mean_histograms.items()):
+        plt.subplot(len(categories_mean_histograms.keys()), 1, index + 1)
+        plt.bar(range(CLUSTERS_COUNT), histogram, width=1)
+        plt.xlim(0, CLUSTERS_COUNT - 1)
+        plt.ylim(0, max_histograms_value)
+        plt.title(category)
+
+    plt.show()
 
