@@ -25,4 +25,4 @@ TRAIN_SIZE = 10
 
 CLUSTERS_COUNT = 50
 KMEANS_ITERATIONS = 10
-CATEGORIES = ['helicopter', 'grand_piano', 'brain']
+CATEGORIES = ['hawksbill', 'grand_piano', 'brain']
