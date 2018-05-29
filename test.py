@@ -30,8 +30,9 @@ def test_classifiers(categories):
     for category in categories:
         print(f'  > {category}:')
 
-        # ToDo: classify
-        # http://scikit-learn.org/stable/modules/svm.html
+        predictions = classifier.predict(sets_histograms[category])
+        set_labels += [category] * len(sets_histograms[category])
+        predicted_labels += predictions.tolist()
 
         print(f'  DONE')
 
@@ -51,9 +52,27 @@ def _get_test_images_sets(categories):
 
 
 def _draw_confusion_matrix(set_labels, predicted_labels, classes):
-    # ToDo: draw confusion matrix
-    # http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html
-    pass
+    matrix = confusion_matrix(set_labels, predicted_labels)
+    matrix = matrix.astype('float') / matrix.sum(axis=1)[:, np.newaxis]
+
+    plt.figure()
+
+    plt.imshow(matrix, interpolation='nearest', cmap=plt.cm.Blues)
+    plt.title('confuction matrix')
+    plt.colorbar()
+    tick_marks = np.arange(len(classes))
+    plt.xticks(tick_marks, classes, rotation=45)
+    plt.yticks(tick_marks, classes)
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
+    threshold = matrix.max() / 2.
+    for i, j in itertools.product(range(matrix.shape[0]), range(matrix.shape[1])):
+        plt.text(j, i, f'{matrix[i,j]:.2f}',
+                 horizontalalignment="center",
+                 color="white" if matrix[i, j] > threshold else "black")
+
+    plt.show()
 
 
 if __name__ == "__main__":
