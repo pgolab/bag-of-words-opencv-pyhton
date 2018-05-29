@@ -37,16 +37,20 @@ def _get_training_images_sets(categories):
 def _compute_svm_classifier(categories, sets_histograms):
     print('TRAINING CLASSIFIER:')
 
-    # ToDo: prepare test histograms for classification
-    # combine all histograms and build labels array
-    # https://docs.scipy.org/doc/numpy/reference/generated/numpy.vstack.html
+    all_histograms = np.empty((0, CLUSTERS_COUNT))
+    for category in categories:
+        all_histograms = np.vstack((all_histograms, sets_histograms[category]))
 
-    # ToDo: train classifier
-    # http://scikit-learn.org/stable/modules/svm.html
+    labels = []
+    for category in categories:
+        labels += [category] * len(sets_histograms[category])
+
+    category_classifier = SVC(kernel='linear')
+    category_classifier.fit(all_histograms, labels)
 
     print('DONE')
 
-    return None
+    return category_classifier
 
 
 if __name__ == "__main__":
